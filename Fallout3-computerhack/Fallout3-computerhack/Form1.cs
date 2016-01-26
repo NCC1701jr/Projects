@@ -36,12 +36,18 @@ namespace Fallout3_computerhack
             }
             else if (words.CharCount != textBox1.Text.Count())
             {
-                MessageBox.Show("invalid number of char in your word!\nA word must have " + words.CharCount.ToString() + " char.\nFor example: " + words.m_collection.ElementAt(0).word + ".", "invalid input", MessageBoxButtons.OK);
+                MessageBox.Show("invalid number of char in your word!\nA word must have " 
+                    + words.CharCount.ToString() 
+                    + " char.\nFor example: " 
+                    + words.m_collection.ElementAt(0).GetWord()
+                    + "."
+                    , "invalid input"
+                    , MessageBoxButtons.OK);
             }
             if (words.m_collection.Count != 0)
             {
                 //GetWordsValue();
-                comboBox1.SelectedItem = words.GetBestGuess().word;
+                comboBox1.SelectedItem = words.GetBestGuess().GetWord();
                 TrBgoodChar.Enabled = true;
             }
             else
@@ -124,10 +130,13 @@ namespace Fallout3_computerhack
                 richTextBox2.Text += '\n' + value.ToString();
                 //words.Remove(textBox2.Text);
                 cWord word = new cWord();
-                if ((string)comboBox1.SelectedItem == null) { word.word = comboBox1.Text; }
+                if ((string)comboBox1.SelectedItem == null)
+                {
+                    word.SetWord(comboBox1.Text);
+                }
                 else
                 {
-                    word.word  = (string)comboBox1.SelectedItem;
+                    word.SetWord( (string)comboBox1.SelectedItem);
                 }
 
                 words.AppendSearch(word, value);
@@ -212,7 +221,7 @@ namespace Fallout3_computerhack
                 cWord WordToChange = new cWord((string)comboBox1.SelectedItem);
                 cWord ChangeToWord = new cWord(textBox2.Text);
 
-                words.AppendWord(WordToChange, ChangeToWord);
+                words.ChangeWordTo(WordToChange, ChangeToWord);
 
                 /*
                 words.Remove(word);

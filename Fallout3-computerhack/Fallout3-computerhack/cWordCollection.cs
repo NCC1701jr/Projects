@@ -17,7 +17,7 @@ namespace Fallout3_computerhack
         public int CharCount { get; set; }
 
 
-        public bool AppendWord(cWord WordToChange, cWord ChangeToWord)
+        public bool ChangeWordTo(cWord WordToChange, cWord ChangeToWord)
         {
             bool result = false;
 
@@ -37,7 +37,7 @@ namespace Fallout3_computerhack
 
             foreach (cWord i in m_collection)
             {
-                result.Add(i.word);
+                result.Add(i.GetWord());
             }
 
             return result;
@@ -53,52 +53,47 @@ namespace Fallout3_computerhack
             //get char list from word to check to and copy word list to append in
 
             //List<char> abc = textBox2.Text.Select(c => c).ToList();
-            List<char> InputWord = WordTried.chars;
-            List<cWord> corr = new List<cWord>();
-            corr = m_collection.ToList();
+            List<char> InputWord = WordTried.GetChars();
+
+            List<cWord> cleanedWordList = new List<cWord>(m_collection.ToList());
+            //cleanedWordList = m_collection.ToList();
 
             //check every word in m_collection
 
-            foreach (cWord i in m_collection)
+            foreach (cWord collWord in m_collection)
             {
                 //get char list from word to check and create bool list to find the good charsin good places
-                List<char> CheckWord = i.chars;
-                List<bool> correction = new List<bool>();
+                List<char> CheckWord = collWord.GetChars();
+                List<bool> bMatchList = new List<bool>();
                 int index = 0;
 
                 //check which chars are on the same place. bool list will state true on index of match and false on index of non-match
 
+                // compare InputWord with collWord
                 foreach (char t in InputWord)
                 {
                     //correction.Add(ab.Contains(t));
-                    correction.Add(CheckWord.ElementAt<char>(index) == t);
+                    bMatchList.Add(CheckWord.ElementAt<char>(index) == t);
                     index++;
                 }
 
                 //if the amount of matched chars is the same as the correct value than word still qualifies.
 
-                if (correction.FindAll(v => v == true).Count == GoodChars)
+                if (bMatchList.FindAll(v => v == true).Count != GoodChars)
                 {
-
-                }
-
-                // if not word does not qualify than word is removes from m_collection
-
-                else
-                {
-                    corr.Remove(i);
+                    // if word does not qualify than word is removed from m_collection
+                    cleanedWordList.Remove(collWord);
                 }
             }
 
-            //appended list is merged with original list.
-
+            // cleaned list is moved to the original list.
             m_collection.Clear();
-            m_collection = corr.ToList<cWord>();
+            m_collection = cleanedWordList.ToList<cWord>();
         }
 
         public cWord GetBestGuess()
         {
-            cWord result = new cWord("");
+            cWord result = new cWord();
 
             List<int> wordValues = GetWordValues();
             result = m_collection.ElementAt(wordValues.FindIndex(c => c == wordValues.Max()));
@@ -122,10 +117,11 @@ namespace Fallout3_computerhack
                     count++;
                 }
             }
-            foreach (cWord i in m_collection)
+
+            foreach (cWord collWord in m_collection)
             {
                 int value = 0;
-                foreach (char t in i.chars)
+                foreach (char t in collWord.GetChars())
                 {
                     value = value + charValues[(int)t - 97];
                 }
